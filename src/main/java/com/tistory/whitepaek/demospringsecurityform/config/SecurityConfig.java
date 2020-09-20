@@ -1,8 +1,8 @@
 package com.tistory.whitepaek.demospringsecurityform.config;
 
+import com.tistory.whitepaek.demospringsecurityform.account.AccountService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,16 +10,16 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final AccountService accountService;
+
+    public SecurityConfig(AccountService accountService) {
+        this.accountService = accountService;
+    }
 
     public SecurityExpressionHandler expressionHandler() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
@@ -46,8 +46,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .expressionHandler(expressionHandler());
         http.formLogin().loginPage("/login").permitAll();
         http.httpBasic();
-//        http.csrf().disable(); // CSRF 필터 비활성화
         http.logout().logoutSuccessUrl("/");
+
+        http.rememberMe().userDetailsService(accountService).key("remember-me-sample"); // 토큰 기반으로 인증
+
+//        http.csrf().disable(); // CSRF 필터 비활성화
+
 //        http.sessionManagement().sessionFixation().changeSessionId().invalidSessionUrl("/login"); // 유효하지 않은 세션에 대한 리디렉션 URL 설정
 //        http.sessionManagement().sessionFixation().changeSessionId().maximumSessions(1).maxSessionsPreventsLogin(false); // 동시성 제어 (추가 로그인 설정)
 //        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // STATELESS REST API에 사용하는 전략, 폼 기반의 인증을 지원할 때는 Session을 사용 (세션 생성 전략)
@@ -55,7 +59,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // TODO ExceptionTranslationFilter(Before) -> FilterSecurityInterceptor(After), (AccessDecisionManager, AffirmativeBased)
         // TODO AuthenticationException -> AuthenticationEntryPoint
         // TODO AccessDeniedException -> AccessDeniedHandler
-
         // 유저가 권한이 없는 페이지에 접속했을 경우, 서버에 로그를 남기고 특정 페이지로 이동 (Test code - Line 60 ~ 65)
         http.exceptionHandling().accessDeniedHandler((request, response, accessDeniedException) -> {
             UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
