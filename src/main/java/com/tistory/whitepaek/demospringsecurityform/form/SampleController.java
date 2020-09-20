@@ -1,7 +1,9 @@
 package com.tistory.whitepaek.demospringsecurityform.form;
 
+import com.tistory.whitepaek.demospringsecurityform.account.Account;
 import com.tistory.whitepaek.demospringsecurityform.account.AccountContext;
 import com.tistory.whitepaek.demospringsecurityform.account.AccountRepository;
+import com.tistory.whitepaek.demospringsecurityform.common.CurrentUser;
 import com.tistory.whitepaek.demospringsecurityform.common.SecurityLogger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,11 +25,11 @@ public class SampleController {
     }
 
     @GetMapping("/")
-    public String index(Model model, Principal principal) {
-        if (principal == null) {
+    public String index(Model model, @CurrentUser Account account) {
+        if (account == null) {
             model.addAttribute("message", "Hello Spring Security");
         } else {
-            model.addAttribute("message", "Hello, " + principal.getName());
+            model.addAttribute("message", "Hello, " + account.getUsername());
         }
 
         return "index";

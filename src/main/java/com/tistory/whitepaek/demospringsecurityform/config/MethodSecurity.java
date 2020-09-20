@@ -21,4 +21,5 @@ public class MethodSecurity extends GlobalMethodSecurityConfiguration {
         accessDecisionManager.getDecisionVoters().add(new RoleHierarchyVoter(roleHierarchy));
         return accessDecisionManager;
     }
+
 }

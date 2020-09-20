@@ -1,6 +1,5 @@
 package com.tistory.whitepaek.demospringsecurityform.account;
 
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,11 +26,7 @@ public class AccountService implements UserDetailsService {
             throw new UsernameNotFoundException(username);
         }
 
-        return User.builder()
-                .username(account.getUsername())
-                .password(account.getPassword())
-                .roles(account.getRole())
-                .build();
+        return new UserAccount(account);
     }
 
     public Account createNew(Account account) {
