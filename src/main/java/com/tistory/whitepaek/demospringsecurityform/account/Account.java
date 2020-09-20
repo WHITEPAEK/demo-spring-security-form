@@ -52,4 +52,5 @@ public class Account {
     public void encodePassword(PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(this.password);
     }
+
 }

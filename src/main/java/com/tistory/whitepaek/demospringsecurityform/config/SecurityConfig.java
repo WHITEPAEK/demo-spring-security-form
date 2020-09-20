@@ -36,9 +36,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/user").hasRole("USER")
                 .anyRequest().authenticated()
                 .expressionHandler(expressionHandler());
-        http.formLogin();
+        http.formLogin().loginPage("/login").permitAll();
         http.httpBasic();
 //        http.csrf().disable(); // CSRF 필터 비활성화
+        http.logout().logoutSuccessUrl("/");
 
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
     }
