@@ -1,6 +1,7 @@
 package com.tistory.whitepaek.demospringsecurityform.config;
 
 import com.tistory.whitepaek.demospringsecurityform.account.AccountService;
+import com.tistory.whitepaek.demospringsecurityform.common.LoggingFilter;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -38,14 +40,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.addFilterBefore(new LoggingFilter(), WebAsyncManagerIntegrationFilter.class);
+
         http.authorizeRequests()
                 .mvcMatchers("/", "/info", "/account/**", "/signup").permitAll()
                 .mvcMatchers("/admin").hasRole("ADMIN")
                 .mvcMatchers("/user").hasRole("USER")
                 .anyRequest().authenticated()
                 .expressionHandler(expressionHandler());
+
         http.formLogin().loginPage("/login").permitAll();
+
         http.httpBasic();
+
         http.logout().logoutSuccessUrl("/");
 
         http.rememberMe().userDetailsService(accountService).key("remember-me-sample"); // 토큰 기반으로 인증
@@ -66,7 +73,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             System.out.println(username + " is denied to access - " + request.getRequestURI());
             response.sendRedirect("/access-denied");
         });
-
 
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
     }
