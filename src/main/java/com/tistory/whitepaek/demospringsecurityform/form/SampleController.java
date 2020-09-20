@@ -3,6 +3,7 @@ package com.tistory.whitepaek.demospringsecurityform.form;
 import com.tistory.whitepaek.demospringsecurityform.account.Account;
 import com.tistory.whitepaek.demospringsecurityform.account.AccountContext;
 import com.tistory.whitepaek.demospringsecurityform.account.AccountRepository;
+import com.tistory.whitepaek.demospringsecurityform.book.BookRepository;
 import com.tistory.whitepaek.demospringsecurityform.common.CurrentUser;
 import com.tistory.whitepaek.demospringsecurityform.common.SecurityLogger;
 import org.springframework.stereotype.Controller;
@@ -18,10 +19,12 @@ public class SampleController {
 
     private final SampleService sampleService;
     private final AccountRepository accountRepository;
+    private final BookRepository bookRepository;
 
-    public SampleController(SampleService sampleService, AccountRepository accountRepository) {
+    public SampleController(SampleService sampleService, AccountRepository accountRepository, BookRepository bookRepository) {
         this.sampleService = sampleService;
         this.accountRepository = accountRepository;
+        this.bookRepository = bookRepository;
     }
 
     @GetMapping("/")
@@ -58,6 +61,7 @@ public class SampleController {
     @GetMapping("/user")
     public String user(Model model, Principal principal) {
         model.addAttribute("message", "Hello User, " + principal.getName());
+        model.addAttribute("books", bookRepository.findCurrentUserBooks());
         return "user";
     }
 
